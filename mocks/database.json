@@ -1,0 +1,11 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Rodrigo"
+    }
+  ],
+  "auth": {
+    "accessToken": "iuashIA-HASHJuiuHAs-uiHASih-ASHIASh-AShiAHSiuhAs"
+  }
+}
