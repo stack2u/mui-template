@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useDrawerContext } from '../shared/contexts'
+import { useDrawer } from '../shared/hooks/drawer'
 import { Dashboard } from '../pages'
 export const AppRoutes: React.FC = () => {
-  const { setDrawerOptions } = useDrawerContext()
+  const { setDrawerOptions } = useDrawer()
 
   useEffect(() => {
     setDrawerOptions([

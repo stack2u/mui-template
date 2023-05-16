@@ -5,6 +5,7 @@ interface IDrawerOption {
   path: string
   label: string
 }
+
 interface IDrawerContextData {
   isDrawerOpen: boolean
   drawerOptions: IDrawerOption[]
@@ -12,19 +13,15 @@ interface IDrawerContextData {
   setDrawerOptions: (newDrawerOptions: IDrawerOption[]) => void
 }
 
-const DrawerContext = createContext({} as IDrawerContextData)
-
-export const useDrawerContext = () => {
-  return useContext(DrawerContext)
-}
-
-interface IDrawerProviderProps {
+interface DrawerProps {
   children: React.ReactNode
 }
 
-export const DrawerProvider: React.FC<IDrawerProviderProps> = ({
-  children,
-}) => {
+const DrawerContext = createContext<IDrawerContextData>(
+  {} as IDrawerContextData,
+)
+
+const DrawerProvider: React.FC<DrawerProps> = ({ children }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [drawerOptions, setDrawerOptions] = useState<IDrawerOption[]>([])
 
@@ -52,3 +49,15 @@ export const DrawerProvider: React.FC<IDrawerProviderProps> = ({
     </DrawerContext.Provider>
   )
 }
+
+function useDrawer(): IDrawerContextData {
+  const context = useContext(DrawerContext)
+
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+
+  return context
+}
+
+export { DrawerProvider, useDrawer }

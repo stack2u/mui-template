@@ -8,7 +8,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { Box } from '@mui/system'
-import { useDrawerContext } from '../contexts'
+import { useDrawer } from '../hooks/drawer'
 
 interface IBaseLayoutPageProps {
   children: React.ReactNode
@@ -26,7 +26,7 @@ export const BaseLayoutPage: React.FC<IBaseLayoutPageProps> = ({
   const smDown = useMediaQuery(theme.breakpoints.down('sm'))
   const mdDown = useMediaQuery(theme.breakpoints.down('md'))
 
-  const { toggleDrawerOpen } = useDrawerContext()
+  const { toggleDrawerOpen } = useDrawer()
 
   return (
     <Box height="100%" display="flex" flexDirection="column" gap={1}>

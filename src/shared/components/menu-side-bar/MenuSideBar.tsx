@@ -15,11 +15,9 @@ import {
 import { Box } from '@mui/system'
 import { useMatch, useNavigate, useResolvedPath } from 'react-router-dom'
 
-import {
-  useAppThemeContext,
-  useAuthContext,
-  useDrawerContext,
-} from '../../contexts'
+import { useAuth } from '../../hooks/auth'
+import { useAppTheme } from '../../hooks/theme'
+import { useDrawer } from '../../hooks/drawer'
 
 interface IMenuSideBarProps {
   children: React.ReactNode
@@ -67,11 +65,11 @@ export const MenuSideBar: React.FC<IMenuSideBarProps> = ({ children }) => {
 
   const smDown = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const { isDrawerOpen, toggleDrawerOpen, drawerOptions } = useDrawerContext()
+  const { isDrawerOpen, toggleDrawerOpen, drawerOptions } = useDrawer()
 
-  const { toggleTheme } = useAppThemeContext()
+  const { toggleTheme } = useAppTheme()
 
-  const { logout } = useAuthContext()
+  const { signOut } = useAuth()
 
   return (
     <>
@@ -129,7 +127,7 @@ export const MenuSideBar: React.FC<IMenuSideBarProps> = ({ children }) => {
                 <ListItemText primary="Mudar tema" />
               </ListItemButton>
 
-              <ListItemButton onClick={logout}>
+              <ListItemButton onClick={signOut}>
                 <ListItemIcon>
                   <Icon>logout</Icon>
                 </ListItemIcon>

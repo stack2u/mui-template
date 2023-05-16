@@ -23,19 +23,18 @@ import FacebookIcon from '@mui/icons-material/Facebook'
 
 import logo from '../../assets/logo.png'
 
-import { useAuthContext } from '../../shared/contexts/AuthContext'
+import { useAuth } from '../../shared/hooks/auth'
 
 interface ILoginProps {
   children: React.ReactNode
 }
 
 export const Login: React.FC<ILoginProps> = ({ children }) => {
-  const { isAuthenticated, login } = useAuthContext()
+  const { signIn } = useAuth()
   const theme = useTheme()
 
   const [showPassword, setShowPassword] = useState(false)
 
-  if (isAuthenticated) return <>{children}</>
   return (
     <Box
       width="100vw"
@@ -162,7 +161,7 @@ export const Login: React.FC<ILoginProps> = ({ children }) => {
                     <Button
                       fullWidth
                       variant="contained"
-                      onClick={() => login('', '')}
+                      onClick={() => signIn({ email: 'x', password: 'x' })}
                     >
                       Entrar
                     </Button>
