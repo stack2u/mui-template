@@ -25,11 +25,7 @@ import logo from '../../assets/logo.png'
 
 import { useAuth } from '../../shared/hooks/auth'
 
-interface ILoginProps {
-  children: React.ReactNode
-}
-
-export const Login: React.FC<ILoginProps> = ({ children }) => {
+export const Login: React.FC = () => {
   const { signIn } = useAuth()
   const theme = useTheme()
 

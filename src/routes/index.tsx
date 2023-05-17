@@ -1,26 +1,13 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useDrawer } from '../shared/hooks/drawer'
-import { Dashboard } from '../pages'
+import { OpenRoutes } from './OpenRoutes'
+import { PrivateRoutes } from './PrivateRoutes'
+import { useAuth } from '../shared/hooks/auth'
+
 export const AppRoutes: React.FC = () => {
-  const { setDrawerOptions } = useDrawer()
+  const { user } = useAuth()
 
-  useEffect(() => {
-    setDrawerOptions([
-      {
-        label: 'Página Inicial',
-        icon: 'home',
-        path: '/home',
-      },
-    ])
-  }, [setDrawerOptions])
+  if (user) return <PrivateRoutes />
 
-  return (
-    <Routes>
-      <Route path="/home" element={<Dashboard />} />
-
-      <Route path="*" element={<Navigate to="/home" />} />
-    </Routes>
-  )
+  return <OpenRoutes />
 }
