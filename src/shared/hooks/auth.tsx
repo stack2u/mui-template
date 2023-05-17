@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useState, useContext } from 'react'
 
-import { api } from '../services/api'
+import { environment } from '../environment'
+// import { api } from '../services/api'
 
 interface IUser {
   id: string
@@ -34,40 +35,55 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData)
 
 const AuthProvider: React.FC<AuthProps> = ({ children }) => {
   const [data, setData] = useState<AuthState>(() => {
-    const token = localStorage.getItem('@sgps:token')
-    const user = localStorage.getItem('@sgps: user')
+    const payload = localStorage.getItem(environment.APP_NAME)
 
-    if (token && user) {
-      return { token, user: JSON.parse(user) }
+    if (payload) {
+      console.log(JSON.parse(payload))
+      const { token, user } = JSON.parse(payload)
+
+      return { token, user }
     }
 
     return {} as AuthState
   })
 
   const signIn = useCallback(async ({ email, password }: SignInCredencials) => {
-    const response = await api.post('/login', {
-      email,
-      password,
-    })
+    // const response = await api.post('/login', {
+    //   email,
+    //   password,
+    // })
 
-    const { token, user } = response.data
+    // const { token, user } = response.data
 
-    localStorage.setItem('@sgps:token', token)
-    localStorage.setItem('@sgps: user', JSON.stringify(user))
+    // const payload = {
+    //   user,
+    //   token,
+    // }
 
-    setData({ token, user })
+    const payload = {
+      token: 'iuHAisu-asd23412312-asdasdasda-23123123',
+      user: {
+        id: '01129',
+        name: 'Rodrigo Bighetti',
+        email: 'rodrigo@stack2u.net',
+        avatar_url: '',
+      },
+    }
+
+    localStorage.setItem(environment.APP_NAME, JSON.stringify(payload))
+
+    setData({ token: payload.token, user: payload.user })
   }, [])
 
   const signOut = useCallback(() => {
-    localStorage.removeItem('@sgps:token')
-    localStorage.removeItem('@sgps:user')
+    localStorage.removeItem(environment.APP_NAME)
 
     setData({} as AuthState)
   }, [])
 
   const updateUser = useCallback(
     (user: IUser) => {
-      localStorage.setItem('@sgps: user', JSON.stringify(user))
+      localStorage.setItem(environment.APP_NAME, JSON.stringify(user))
 
       setData({
         token: data.token,
