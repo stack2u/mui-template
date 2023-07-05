@@ -3,6 +3,7 @@ import React from 'react'
 import { AuthProvider } from './auth'
 import { DrawerProvider } from './drawer'
 import { AppThemeProvider } from './theme'
+import { ToastProvider } from './Toast'
 
 interface Props {
   children: React.ReactNode
@@ -10,9 +11,11 @@ interface Props {
 
 const AppProvider: React.FC<Props> = ({ children }) => (
   <AppThemeProvider>
-    <AuthProvider>
-      <DrawerProvider>{children}</DrawerProvider>
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <DrawerProvider>{children}</DrawerProvider>
+      </AuthProvider>
+    </ToastProvider>
   </AppThemeProvider>
 )
 
