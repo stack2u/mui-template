@@ -1,35 +1,87 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useCallback } from 'react'
 
 import {
-  Avatar,
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
   useTheme,
   Grid,
-  TextField,
   Typography,
   Divider,
   InputAdornment,
   IconButton,
   Icon,
-  Link,
+  CircularProgress,
 } from '@mui/material'
 
-import GoogleIcon from '@mui/icons-material/Google'
-import FacebookIcon from '@mui/icons-material/Facebook'
+import { Link } from 'react-router-dom'
+
+import * as Yup from 'yup'
+import { Form } from '@unform/web'
+import { FormHandles } from '@unform/core'
+
+import { useAuth } from '../../shared/hooks/auth'
+import { useToast } from '../../shared/hooks/Toast'
+
+import { VTextField } from '../../shared/components'
+
+import getValidationErrors from '../../shared/utils/getValidationErrors'
 
 import logo from '../../assets/logo.png'
 
-import { useAuth } from '../../shared/hooks/auth'
+interface ILoginData {
+  email: string
+  password: string
+}
 
 export const Login: React.FC = () => {
+  const formRef = useRef<FormHandles>(null)
+  const { addToast } = useToast()
+
   const { signIn } = useAuth()
   const theme = useTheme()
 
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = useCallback(
+    async (data: ILoginData) => {
+      try {
+        formRef.current?.setErrors({})
+        setLoading(true)
+
+        const schema = Yup.object().shape({
+          email: Yup.string().email().required('Email é obrigatório'),
+          password: Yup.string().required('Senha é obrigatória'),
+        })
+
+        await schema.validate(data, { abortEarly: false })
+
+        await signIn({ email: data.email, password: data.password })
+
+        addToast({
+          type: 'success',
+          title: 'Bem Vindo (a)',
+        })
+      } catch (err: any) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err)
+
+          formRef.current?.setErrors(errors)
+        }
+
+        addToast({
+          type: 'error',
+          title: 'Erro ao logar',
+          description: 'Verifique suas credenciais',
+        })
+      } finally {
+        setLoading(false)
+      }
+    },
+    [signIn, addToast],
+  )
 
   return (
     <Box
@@ -58,133 +110,121 @@ export const Login: React.FC = () => {
                   alignItems="center"
                   gap={1}
                 >
-                  <Avatar
-                    sx={{
-                      height: theme.spacing(30),
-                      width: theme.spacing(30),
-                    }}
-                    alt="Remy Sharp"
+                  <img
                     src={logo}
+                    alt="Estradas Verdes"
+                    width={theme.spacing(30)}
+                    style={{
+                      margin: 16,
+                    }}
                   />
 
-                  <Typography variant="h6" align="center">
-                    Entre com sua conta
-                  </Typography>
-
-                  <Box
-                    width="100%"
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    gap={2}
-                  >
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      disableElevation
-                      fullWidth
-                    >
-                      <GoogleIcon style={{ color: '#db4a39' }} />
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      disableElevation
-                      fullWidth
-                    >
-                      <FacebookIcon style={{ color: '#3b5998' }} />
-                    </Button>
-                  </Box>
-
-                  <Box width="100%">
+                  <Box width="100%" marginBottom={2} marginTop={2}>
                     <Divider>
                       <Typography
-                        variant="body2"
+                        variant="subtitle1"
                         sx={{ color: 'text.secondary' }}
                       >
-                        OU
+                        Entre com sua conta
                       </Typography>
                     </Divider>
                   </Box>
+                  <Form ref={formRef} onSubmit={handleSubmit}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <VTextField name="email" label="Email" type="email" />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <VTextField
+                          name="password"
+                          label="Password"
+                          type={showPassword ? 'text' : 'password'}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() =>
+                                    setShowPassword((prev) => !prev)
+                                  }
+                                >
+                                  {showPassword ? (
+                                    <Icon>visibility</Icon>
+                                  ) : (
+                                    <Icon>visibility_off</Icon>
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
 
-                  <TextField fullWidth label="Email" type="email" />
-                  <TextField
-                    fullWidth
-                    label="Password"
-                    type={showPassword ? 'text' : 'password'}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword((prev) => !prev)}
+                      <Grid item xs={12}>
+                        <Box
+                          width="100%"
+                          display="flex"
+                          justifyContent="end"
+                          marginRight={2}
+                          marginBottom={2}
+                        >
+                          <Link
+                            style={{
+                              cursor: 'pointer',
+                              textDecoration: 'none',
+                            }}
+                            to="/forgot-password"
                           >
-                            {showPassword ? (
-                              <Icon>visibility</Icon>
-                            ) : (
-                              <Icon>visibility_off</Icon>
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
+                            <Typography variant="body2" color="primary">
+                              Esqueci minha senha
+                            </Typography>
+                          </Link>
+                        </Box>
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <Button fullWidth variant="contained" type="submit">
+                          {loading ? (
+                            <CircularProgress
+                              color="inherit"
+                              style={{ height: '24px', width: '24px' }}
+                            />
+                          ) : (
+                            <Typography
+                              variant="button"
+                              color={theme.palette.background.paper}
+                            >
+                              Entrar
+                            </Typography>
+                          )}
+                        </Button>
+                      </Grid>
+                      <Box
+                        width="100%"
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        marginTop={2}
+                      >
+                        <Typography variant="body2">
+                          Ainda não possui uma conta ?
+                        </Typography>
+                        <Link
+                          style={{
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                            marginLeft: '16px',
+                          }}
+                          to="/register"
+                        >
+                          <Typography variant="body2" color="primary">
+                            Cadastre-se
+                          </Typography>
+                        </Link>
+                      </Box>
+                    </Grid>
+                  </Form>
                 </Box>
               </CardContent>
-              <CardActions>
-                <Box width="100%">
-                  <Box
-                    width="100%"
-                    display="flex"
-                    justifyContent="end"
-                    marginRight={2}
-                    marginBottom={2}
-                  >
-                    <Link
-                      style={{
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => {
-                        console.log('ok')
-                      }}
-                      underline="none"
-                    >
-                      <Typography variant="body2" color="primary">
-                        Esqueci minha senha
-                      </Typography>
-                    </Link>
-                  </Box>
-                  <Box width="100%" display="flex" justifyContent="center">
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      onClick={() => signIn({ email: 'x', password: 'x' })}
-                    >
-                      Entrar
-                    </Button>
-                  </Box>
-                  <Box
-                    width="100%"
-                    display="flex"
-                    justifyContent="center"
-                    marginTop={2}
-                  >
-                    <Typography variant="body2">
-                      Ainda não possui uma conta ?{' '}
-                      <Link
-                        style={{
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => {
-                          console.log('ok')
-                        }}
-                        underline="none"
-                      >
-                        Cadastre-se
-                      </Link>
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardActions>
             </Card>
           </Grid>
         </Grid>

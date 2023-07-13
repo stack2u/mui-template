@@ -1,14 +1,10 @@
+/* eslint-disable camelcase */
 import React, { createContext, useCallback, useState, useContext } from 'react'
 
 import { environment } from '../environment'
-// import { api } from '../services/api'
+import { login } from '../../api/api'
 
-interface IUser {
-  id: string
-  name: string
-  email: string
-  avatar_url: string
-}
+import { ILogin, IUser } from '../dtos'
 
 interface SignInCredencials {
   email: string
@@ -17,14 +13,10 @@ interface SignInCredencials {
 
 interface AuthContextData {
   user: IUser
+  token: string
   signIn(credentials: SignInCredencials): Promise<void>
   signOut(): void
   updateUser(user: IUser): void
-}
-
-interface AuthState {
-  token: string
-  user: IUser
 }
 
 interface AuthProps {
@@ -34,57 +26,41 @@ interface AuthProps {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData)
 
 const AuthProvider: React.FC<AuthProps> = ({ children }) => {
-  const [data, setData] = useState<AuthState>(() => {
+  const [data, setData] = useState<ILogin>(() => {
     const payload = localStorage.getItem(environment.APP_NAME)
 
     if (payload) {
-      console.log(JSON.parse(payload))
       const { token, user } = JSON.parse(payload)
 
       return { token, user }
     }
 
-    return {} as AuthState
+    return {} as ILogin
   })
 
   const signIn = useCallback(async ({ email, password }: SignInCredencials) => {
-    // const response = await api.post('/login', {
-    //   email,
-    //   password,
-    // })
+    const result = await login(email, password)
 
-    // const { token, user } = response.data
+    localStorage.setItem(environment.APP_NAME, JSON.stringify(result))
 
-    // const payload = {
-    //   user,
-    //   token,
-    // }
-
-    const payload = {
-      token: 'iuHAisu-asd23412312-asdasdasda-23123123',
-      user: {
-        id: '01129',
-        name: 'Rodrigo Bighetti',
-        email: 'rodrigo@stack2u.net',
-        avatar_url: '',
-      },
-    }
-
-    localStorage.setItem(environment.APP_NAME, JSON.stringify(payload))
-
-    setData({ token: payload.token, user: payload.user })
+    setData(result)
   }, [])
 
   const signOut = useCallback(() => {
     localStorage.removeItem(environment.APP_NAME)
 
-    setData({} as AuthState)
+    setData({} as ILogin)
   }, [])
 
   const updateUser = useCallback(
     (user: IUser) => {
-      localStorage.setItem(environment.APP_NAME, JSON.stringify(user))
-
+      localStorage.setItem(
+        environment.APP_NAME,
+        JSON.stringify({
+          token: data.token,
+          user,
+        }),
+      )
       setData({
         token: data.token,
         user,
@@ -95,7 +71,13 @@ const AuthProvider: React.FC<AuthProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user: data.user, signIn, signOut, updateUser }}
+      value={{
+        user: data.user,
+        token: data.token,
+        signIn,
+        signOut,
+        updateUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

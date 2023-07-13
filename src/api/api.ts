@@ -1,0 +1,38 @@
+import { api } from '../shared/services/api'
+
+import { ILogin, IResetPassword } from '../shared/dtos'
+
+const forgotPassword = async (email: string) => {
+  try {
+    const result = await api.post('/forgot-password', { email })
+
+    return result.data
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
+const login = async (email: string, password: string) => {
+  try {
+    const result = await api.post<ILogin>('/login', {
+      email,
+      password,
+    })
+
+    return result.data
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
+const resetPassword = async ({ token, password }: IResetPassword) => {
+  try {
+    const result = await api.patch(`/reset-password/${token}`, { password })
+
+    return result.data
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
+export { login, forgotPassword, resetPassword }

@@ -5,25 +5,25 @@ export const LightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: yellow[700],
-      dark: yellow[800],
-      light: yellow[500],
+      main: '#1E76B8',
+      dark: '#1E76B8',
+      light: '#1E76B8',
       contrastText: '#fff',
     },
     secondary: {
-      main: cyan[500],
-      dark: cyan[400],
-      light: cyan[300],
+      main: '#1F2452',
+      dark: '#1F2452',
+      light: '#1F2452',
       contrastText: '#fff',
     },
     background: {
       paper: '#fff',
-      default: '#f7f6f3',
+      default: 'rgba(30, 118, 184, 0.1)',
     },
   },
   typography: {
     allVariants: {
-      color: 'black',
+      color: '#404051',
     },
   },
 })

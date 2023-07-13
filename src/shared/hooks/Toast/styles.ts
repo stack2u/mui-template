@@ -16,7 +16,7 @@ export const Container = styled.div`
 
   span {
     font-size: 12px;
-    margin-top: 8px;
-    text-align: justify;
+    margin: 10px;
+    text-align: center;
   }
 `
