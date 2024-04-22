@@ -11,8 +11,8 @@ import {
   useTheme,
   Icon,
   useMediaQuery,
+  Box,
 } from '@mui/material'
-import { Box } from '@mui/system'
 import { useMatch, useNavigate, useResolvedPath } from 'react-router-dom'
 
 import { useAuth } from '../../hooks/auth'

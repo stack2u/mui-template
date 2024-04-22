@@ -6,8 +6,9 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Box,
 } from '@mui/material'
-import { Box } from '@mui/system'
+
 import { useDrawer } from '../hooks/drawer'
 
 interface IBaseLayoutPageProps {
