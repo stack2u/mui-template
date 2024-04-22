@@ -19,5 +19,5 @@ export const environment = {
   /**
    * APP Name
    */
-  APP_NAME: '@solida',
+  APP_NAME: '@barber',
 }

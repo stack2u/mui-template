@@ -30,7 +30,9 @@ const AuthProvider: React.FC<AuthProps> = ({ children }) => {
     const payload = localStorage.getItem(environment.APP_NAME)
 
     if (payload) {
-      const { token, user } = JSON.parse(payload)
+      const { data } = JSON.parse(payload)
+
+      const { token, user } = data
 
       return { token, user }
     }
@@ -39,11 +41,11 @@ const AuthProvider: React.FC<AuthProps> = ({ children }) => {
   })
 
   const signIn = useCallback(async ({ email, password }: SignInCredencials) => {
-    const result = await login(email, password)
+    const { data } = await login(email, password)
 
-    localStorage.setItem(environment.APP_NAME, JSON.stringify(result))
+    localStorage.setItem(environment.APP_NAME, JSON.stringify(data))
 
-    setData(result)
+    setData(data)
   }, [])
 
   const signOut = useCallback(() => {

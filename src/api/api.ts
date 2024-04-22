@@ -1,6 +1,6 @@
 import { api } from '../shared/services/api'
 
-import { ILogin, IResetPassword } from '../shared/dtos'
+import { IResetPassword } from '../shared/dtos'
 
 const forgotPassword = async (email: string) => {
   try {
@@ -14,7 +14,7 @@ const forgotPassword = async (email: string) => {
 
 const login = async (email: string, password: string) => {
   try {
-    const result = await api.post<ILogin>('/login', {
+    const result = await api.post('/login', {
       email,
       password,
     })
