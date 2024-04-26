@@ -11,10 +11,14 @@ interface SignInCredencials {
   password: string
 }
 
+interface IUserResponseProps {
+  user: IUser
+}
+
 interface AuthContextData {
   user: IUser
   token: string
-  signIn(credentials: SignInCredencials): Promise<void>
+  signIn(credentials: SignInCredencials): Promise<IUserResponseProps | null>
   signOut(): void
   updateUser(user: IUser): void
 }
@@ -46,6 +50,8 @@ const AuthProvider: React.FC<AuthProps> = ({ children }) => {
     localStorage.setItem(environment.APP_NAME, JSON.stringify(data))
 
     setData(data)
+
+    return data
   }, [])
 
   const signOut = useCallback(() => {

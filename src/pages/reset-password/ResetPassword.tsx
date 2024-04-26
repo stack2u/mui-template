@@ -1,10 +1,9 @@
-import React, { useState, useRef, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 
 import {
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
   useTheme,
   Grid,
@@ -17,24 +16,31 @@ import {
 } from '@mui/material'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-import * as Yup from 'yup'
-import { Form } from '@unform/web'
-import { FormHandles } from '@unform/core'
+import { useForm } from 'react-hook-form'
+import * as zod from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import logo from '../../assets/logo.png'
 
-import { VTextField } from '../../shared/components'
-import getValidationErrors from '../../shared/utils/getValidationErrors'
 import { resetPassword } from '../../api/api'
 import { useToast } from '../../shared/hooks/Toast'
+import { InputText } from '../../shared/components/hook-form-components/input-text'
 
 interface IData {
   password: string
   password_confirmation: string
 }
 
+const resetPasswordValidationSchema = zod.object({
+  password_confirmation: zod
+    .string()
+    .min(6, 'Senha deve ter no mínimo 6 caracteres'),
+  password: zod.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
+})
+
+type ResetPasswordFormType = zod.infer<typeof resetPasswordValidationSchema>
+
 export const ResetPassword: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
   const { addToast } = useToast()
   const navigate = useNavigate()
   const { token = '' } = useParams<'token'>()
@@ -43,29 +49,26 @@ export const ResetPassword: React.FC = () => {
     navigate('/')
   }
 
+  const methods = useForm<ResetPasswordFormType>({
+    resolver: zodResolver(resetPasswordValidationSchema),
+    defaultValues: {
+      password_confirmation: '',
+      password: '',
+    },
+  })
+
+  const { handleSubmit, control } = methods
+
   const theme = useTheme()
 
   const [loading, setLoading] = useState(false)
 
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleSubmit = useCallback(
+  const handleSubmitResetPassword = useCallback(
     async (data: IData) => {
       try {
         setLoading(true)
-        formRef.current?.setErrors({})
-
-        const schema = Yup.object().shape({
-          password: Yup.string().required('Senha Obrigatória'),
-          password_confirmation: Yup.string().oneOf(
-            [Yup.ref('password'), undefined],
-            'As senhas precisam ser iguais',
-          ),
-        })
-
-        await schema.validate(data, {
-          abortEarly: false,
-        })
 
         await resetPassword({ token, password: data.password })
 
@@ -75,12 +78,6 @@ export const ResetPassword: React.FC = () => {
         })
         navigate('/')
       } catch (err: any) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-
-          formRef.current?.setErrors(errors)
-        }
-
         addToast({
           type: 'error',
           title: 'Erro ao alterar a senha, verifique seus dados',
@@ -121,7 +118,7 @@ export const ResetPassword: React.FC = () => {
                 >
                   <img
                     src={logo}
-                    alt="Estradas Verdes"
+                    alt="Coollbarber"
                     width={theme.spacing(30)}
                     style={{
                       margin: 16,
@@ -130,20 +127,18 @@ export const ResetPassword: React.FC = () => {
 
                   <Box width="100%" marginBottom={2} marginTop={2}>
                     <Divider>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{ color: 'text.secondary' }}
-                      >
+                      <Typography variant="subtitle1">
                         Altere sua senha
                       </Typography>
                     </Divider>
                   </Box>
-                  <Form ref={formRef} onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit(handleSubmitResetPassword)}>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
-                        <VTextField
+                        <InputText
                           name="password"
-                          label="Nova senha"
+                          label="Digite sua nova senha"
+                          control={control}
                           type={showPassword ? 'text' : 'password'}
                           InputProps={{
                             endAdornment: (
@@ -165,9 +160,10 @@ export const ResetPassword: React.FC = () => {
                         />
                       </Grid>
                       <Grid item xs={12}>
-                        <VTextField
+                        <InputText
                           name="password_confirmation"
                           label="Confirme sua nova senha"
+                          control={control}
                           type={showPassword ? 'text' : 'password'}
                           InputProps={{
                             endAdornment: (
@@ -197,10 +193,7 @@ export const ResetPassword: React.FC = () => {
                               style={{ height: '24px', width: '24px' }}
                             />
                           ) : (
-                            <Typography
-                              variant="button"
-                              color={theme.palette.background.paper}
-                            >
+                            <Typography variant="button">
                               Alterar Senha
                             </Typography>
                           )}
@@ -245,7 +238,7 @@ export const ResetPassword: React.FC = () => {
                         </Box>
                       </Grid>
                     </Grid>
-                  </Form>
+                  </form>
                 </Box>
               </CardContent>
             </Card>

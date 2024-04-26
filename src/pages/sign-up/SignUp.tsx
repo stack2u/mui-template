@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 
 import { useForm } from 'react-hook-form'
 import * as zod from 'zod'
@@ -11,63 +11,55 @@ import {
   Grid,
   Typography,
   Divider,
-  InputAdornment,
-  IconButton,
-  Icon,
   LinearProgress,
   useMediaQuery,
 } from '@mui/material'
 
 import { Link } from 'react-router-dom'
 
-import { useAuth } from '../../shared/hooks/auth'
 import { useToast } from '../../shared/hooks/Toast'
 
 import logo from '../../assets/logo.png'
 import background from '../../assets/background.png'
 import { InputText } from '../../shared/components/hook-form-components/input-text'
+import { customerRegister } from '../../api/api'
 
-const loginFormValidationSchema = zod.object({
+const SignUpFormValidationSchema = zod.object({
+  name: zod.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
   email: zod.string().email('Digite um email válido'),
-  password: zod.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
+  whatsapp: zod.string().min(11, 'Digite um whatsapp válido'),
 })
 
-type LoginFormType = zod.infer<typeof loginFormValidationSchema>
+type SignUpFormType = zod.infer<typeof SignUpFormValidationSchema>
 
-export const Login: React.FC = () => {
+export const SignUp: React.FC = () => {
   const { addToast } = useToast()
 
-  const { signIn } = useAuth()
   const theme = useTheme()
 
-  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const methods = useForm<LoginFormType>({
-    resolver: zodResolver(loginFormValidationSchema),
+  const methods = useForm<SignUpFormType>({
+    resolver: zodResolver(SignUpFormValidationSchema),
     defaultValues: {
+      name: '',
       email: '',
-      password: '',
+      whatsapp: '',
     },
   })
 
   const { handleSubmit, control } = methods
 
-  const handleSubmitLogin = useCallback(
-    async (data: LoginFormType) => {
+  const handleSubmitCustomerRegister = useCallback(
+    async (data: SignUpFormType) => {
       try {
         setLoading(true)
 
-        const result = await signIn({
-          email: data.email,
-          password: data.password,
-        })
-
-        console.log(result?.user)
+        await customerRegister(data)
 
         addToast({
           type: 'success',
-          title: `Bem Vindo ${result?.user.name}`,
+          title: `Cadastro realizado com sucesso !`,
         })
       } catch (err: any) {
         addToast({
@@ -79,7 +71,7 @@ export const Login: React.FC = () => {
         setLoading(false)
       }
     },
-    [addToast, signIn],
+    [addToast],
   )
 
   const mdDown = useMediaQuery(theme.breakpoints.down('md'))
@@ -156,13 +148,21 @@ export const Login: React.FC = () => {
                     marginTop={mdDown ? 0 : 2}
                     textAlign="center"
                   >
-                    Entre com sua conta
+                    Crie sua conta e agende seu horário
                   </Typography>
                   <Divider style={{ marginTop: '8px' }} />
                 </Box>
 
-                <form onSubmit={handleSubmit(handleSubmitLogin)}>
+                <form onSubmit={handleSubmit(handleSubmitCustomerRegister)}>
                   <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <InputText
+                        name="name"
+                        label="Digite seu nome"
+                        control={control}
+                      />
+                    </Grid>
+
                     <Grid item xs={12}>
                       <InputText
                         name="email"
@@ -171,56 +171,19 @@ export const Login: React.FC = () => {
                         type="email"
                       />
                     </Grid>
-                    <Grid item xs={12}>
-                      <InputText
-                        name="password"
-                        label="Digite sua senha"
-                        type={showPassword ? 'text' : 'password'}
-                        control={control}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={() => setShowPassword((prev) => !prev)}
-                              >
-                                {showPassword ? (
-                                  <Icon>visibility</Icon>
-                                ) : (
-                                  <Icon>visibility_off</Icon>
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Grid>
 
                     <Grid item xs={12}>
-                      <Box
-                        width="100%"
-                        display="flex"
-                        justifyContent="end"
-                        marginRight={2}
-                        marginBottom={2}
-                      >
-                        <Link
-                          style={{
-                            cursor: 'pointer',
-                            textDecoration: 'none',
-                          }}
-                          to="/forgot-password"
-                        >
-                          <Typography variant="body2" color="primary">
-                            Esqueci minha senha
-                          </Typography>
-                        </Link>
-                      </Box>
+                      <InputText
+                        name="whatsapp"
+                        label="Digite seu whatsapp"
+                        control={control}
+                      />
                     </Grid>
 
                     <Grid item xs={12}>
                       {loading && <LinearProgress />}
                       <Button fullWidth variant="contained" type="submit">
-                        <Typography variant="button">Entrar</Typography>
+                        <Typography variant="button">Cadastrar</Typography>
                       </Button>
                     </Grid>
                     <Box
@@ -231,9 +194,9 @@ export const Login: React.FC = () => {
                       marginTop={2}
                     >
                       <Typography variant="body2" display="flex">
-                        Ainda não tem cadastro ?
+                        Já possui Cadastro ?
                         <Link
-                          to="/sign-up"
+                          to="/"
                           style={{
                             marginLeft: '10px',
                           }}
@@ -243,7 +206,7 @@ export const Login: React.FC = () => {
                             color="primary"
                             fontWeight="bold"
                           >
-                            Cadastre-se
+                            Logar-se
                           </Typography>
                         </Link>
                       </Typography>

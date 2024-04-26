@@ -8,6 +8,8 @@ import { AppProvider } from './shared/hooks'
 
 import { AppRoutes } from './routes'
 
+import './global.css'
+
 export const App: React.FC = () => (
   <AppProvider>
     <BrowserRouter>

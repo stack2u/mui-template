@@ -1,55 +1,58 @@
-import React, { useRef, useCallback, useState } from 'react'
+import { useState, useCallback, useRef } from 'react'
+
+import { useForm } from 'react-hook-form'
+import * as zod from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import {
   Box,
   Button,
-  Card,
-  CardActions,
-  CardContent,
   useTheme,
   Grid,
   Typography,
   Divider,
-  CircularProgress,
+  LinearProgress,
+  useMediaQuery,
 } from '@mui/material'
+
 import { Link, useNavigate } from 'react-router-dom'
 
-import * as Yup from 'yup'
-import { Form } from '@unform/web'
-import { FormHandles } from '@unform/core'
+import { useToast } from '../../shared/hooks/Toast'
 
 import logo from '../../assets/logo.png'
+import background from '../../assets/background.png'
 
-import { VTextField } from '../../shared/components'
-import getValidationErrors from '../../shared/utils/getValidationErrors'
-import { useToast } from '../../shared/hooks/Toast'
+import { InputText } from '../../shared/components/hook-form-components/input-text'
 import { forgotPassword } from '../../api/api'
 
-interface IData {
-  email: string
-}
+const forgotPasswordValidationSchema = zod.object({
+  email: zod.string().email('Digite um email válido'),
+})
+
+type ForgotPasswordFormType = zod.infer<typeof forgotPasswordValidationSchema>
 
 export const ForgotPassword: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
-  const { addToast } = useToast()
+  const theme = useTheme()
   const navigate = useNavigate()
   const timeToBack = useRef<NodeJS.Timeout>()
 
-  const theme = useTheme()
+  const { addToast } = useToast()
 
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = useCallback(
-    async (data: IData) => {
+  const methods = useForm<ForgotPasswordFormType>({
+    resolver: zodResolver(forgotPasswordValidationSchema),
+    defaultValues: {
+      email: '',
+    },
+  })
+
+  const { handleSubmit, control } = methods
+
+  const handleSubmitForgotPassword = useCallback(
+    async (data: ForgotPasswordFormType) => {
       try {
-        formRef.current?.setErrors({})
         setLoading(true)
-
-        const schema = Yup.object().shape({
-          email: Yup.string().email().required('Email é obrigatório'),
-        })
-
-        await schema.validate(data, { abortEarly: false })
 
         await forgotPassword(data.email)
 
@@ -61,17 +64,10 @@ export const ForgotPassword: React.FC = () => {
         if (timeToBack.current) {
           clearTimeout(timeToBack.current)
         }
-
         timeToBack.current = setTimeout(() => {
           navigate('/')
         }, 2000)
       } catch (err: any) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-
-          formRef.current?.setErrors(errors)
-        }
-
         addToast({
           type: 'error',
           title: 'Algo deu errado',
@@ -85,114 +81,139 @@ export const ForgotPassword: React.FC = () => {
     [addToast, navigate],
   )
 
+  const mdDown = useMediaQuery(theme.breakpoints.down('md'))
+
   return (
     <Box
-      width="100vw"
-      height="100vh"
       display="flex"
+      justifyContent="space-between"
       alignItems="center"
-      justifyContent="center"
+      flexDirection={mdDown ? 'column' : 'row'}
     >
-      <Grid container margin={2}>
-        <Grid
-          item
-          container
-          width="100%"
-          spacing={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Grid item xs={12} sm={12} md={6} lg={4} xl={3}>
-            <Card>
-              <CardContent>
+      <Box
+        sx={{
+          display: 'flex',
+          backgroundImage: `url(${background})`,
+          backgroundRepeat: 'no-repeat',
+          height: `${mdDown ? '35vh' : '100vh'}`,
+          width: `${mdDown ? '100vw' : '50%'}`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: '0.5',
+          filter: 'blur(1px)',
+          position: 'relative',
+          objectFit: 'cover',
+        }}
+      />
+
+      <Box
+        width={mdDown ? '100%' : '50%'}
+        height={mdDown ? '100%' : '100vh'}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Grid container margin={2} width="100%">
+          <Grid
+            item
+            container
+            width="100%"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+              <Box
+                height="100%"
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                gap={1}
+              >
                 <Box
+                  width="100%"
+                  marginBottom={2}
+                  marginTop={2}
                   display="flex"
                   flexDirection="column"
-                  alignItems="center"
-                  gap={1}
                 >
                   <img
                     src={logo}
-                    alt="Estradas Verdes"
-                    width={theme.spacing(30)}
+                    alt="Coollbarber"
+                    width={mdDown ? '180px' : '200px'}
                     style={{
-                      margin: 16,
+                      alignSelf: 'center',
+                      marginTop: mdDown ? '24px' : '0px',
+                      position: `${mdDown ? 'absolute' : 'relative'}`,
+                      top: '0',
                     }}
                   />
 
-                  <Box width="100%" marginBottom={2} marginTop={2}>
-                    <Divider>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{ color: 'text.secondary' }}
-                      >
-                        Digite seu email pra receber o token
-                      </Typography>
-                    </Divider>
-                  </Box>
-                  <Form
-                    ref={formRef}
-                    onSubmit={handleSubmit}
-                    style={{ width: '100%' }}
+                  <Typography
+                    variant="h5"
+                    marginTop={mdDown ? 0 : 2}
+                    textAlign="center"
                   >
-                    <VTextField
-                      name="email"
-                      label="Email"
-                      type="email"
-                      fullWidth
-                    />
-
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      type="submit"
-                      style={{ marginTop: '16px' }}
-                    >
-                      {loading ? (
-                        <CircularProgress
-                          color="inherit"
-                          style={{ height: '24px', width: '24px' }}
-                        />
-                      ) : (
-                        <Typography
-                          variant="button"
-                          color={theme.palette.background.paper}
-                        >
-                          Enviar Token
-                        </Typography>
-                      )}
-                    </Button>
-
-                    <CardActions>
-                      <Box width="100%">
-                        <Box
-                          width="100%"
-                          display="flex"
-                          justifyContent="center"
-                          marginTop={2}
-                        >
-                          <Link
-                            style={{
-                              cursor: 'pointer',
-                              textDecoration: 'none',
-                            }}
-                            to="/"
-                          >
-                            <Typography variant="body2" color="primary">
-                              Voltar
-                            </Typography>
-                          </Link>
-                        </Box>
-                      </Box>
-                    </CardActions>
-                  </Form>
+                    Esqueceu sua senha ?
+                  </Typography>
+                  <Divider style={{ marginTop: '8px' }} />
                 </Box>
-              </CardContent>
-            </Card>
+
+                <form onSubmit={handleSubmit(handleSubmitForgotPassword)}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <InputText
+                        name="email"
+                        label="Digite seu email"
+                        control={control}
+                        type="email"
+                      />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      {loading && <LinearProgress />}
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        type="submit"
+                        disabled={loading}
+                      >
+                        <Typography variant="button">Entrar</Typography>
+                      </Button>
+                    </Grid>
+                    <Box
+                      width="100%"
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      marginTop={2}
+                    >
+                      <Typography variant="body2" display="flex">
+                        Voltar para
+                        <Link
+                          to="/"
+                          style={{
+                            marginLeft: '10px',
+                          }}
+                        >
+                          <Typography
+                            variant="body2"
+                            color="primary"
+                            fontWeight="bold"
+                          >
+                            Login
+                          </Typography>
+                        </Link>
+                      </Typography>
+                    </Box>
+                  </Grid>
+                </form>
+              </Box>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      </Box>
     </Box>
   )
 }
