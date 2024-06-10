@@ -193,7 +193,7 @@ export const ResetPassword: React.FC = () => {
                               style={{ height: '24px', width: '24px' }}
                             />
                           ) : (
-                            <Typography variant="button">
+                            <Typography variant="button" color="white">
                               Alterar Senha
                             </Typography>
                           )}

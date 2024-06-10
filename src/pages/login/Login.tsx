@@ -219,8 +219,15 @@ export const Login: React.FC = () => {
 
                     <Grid item xs={12}>
                       {loading && <LinearProgress />}
-                      <Button fullWidth variant="contained" type="submit">
-                        <Typography variant="button">Entrar</Typography>
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        type="submit"
+                        color="primary"
+                      >
+                        <Typography variant="button" color="white">
+                          Entrar
+                        </Typography>
                       </Button>
                     </Grid>
                     <Box

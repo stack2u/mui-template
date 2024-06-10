@@ -9,7 +9,7 @@ export const InputText = ({
   name,
   control,
   label,
-  variant = 'outlined',
+  variant = 'filled',
   ...rest
 }: VTextFieldProps) => {
   return (

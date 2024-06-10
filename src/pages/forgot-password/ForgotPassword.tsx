@@ -179,7 +179,9 @@ export const ForgotPassword: React.FC = () => {
                         type="submit"
                         disabled={loading}
                       >
-                        <Typography variant="button">Entrar</Typography>
+                        <Typography variant="button" color="white">
+                          Enviar reset
+                        </Typography>
                       </Button>
                     </Grid>
                     <Box

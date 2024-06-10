@@ -4,38 +4,31 @@ export const LightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#fff',
+      main: '#55368B',
+      light: '#9986B9',
       contrastText: '#fff',
     },
     secondary: {
-      main: '#fff',
-      light: 'rgba(31, 36, 82, 0.2)',
+      main: '#F0801E',
+      light: '#F8A629',
       contrastText: '#fff',
     },
     text: {
       primary: '#333',
-      secondary: '#555',
     },
     background: {
       default: '#fff',
-      paper: '#c3c3c3c3',
+      paper: '#fff',
     },
   },
   typography: {
     allVariants: {
-      color: '#404051',
+      color: '#333',
     },
   },
   custom: {
     tab: {
-      tab: '#fff',
-    },
-    status: {
-      main: '#333',
-      agregado: '#014071',
-      frota: '#75B0DE',
-      terceiros: '#005BA3',
-      rejeitado: '#e847475e',
+      tab: '#333',
     },
     icon: {
       main: '#014071',

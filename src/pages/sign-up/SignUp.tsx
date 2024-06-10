@@ -183,7 +183,9 @@ export const SignUp: React.FC = () => {
                     <Grid item xs={12}>
                       {loading && <LinearProgress />}
                       <Button fullWidth variant="contained" type="submit">
-                        <Typography variant="button">Cadastrar</Typography>
+                        <Typography variant="button" color="white">
+                          Cadastrar
+                        </Typography>
                       </Button>
                     </Grid>
                     <Box

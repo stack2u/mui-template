@@ -4,11 +4,13 @@ export const DarkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FF9000',
+      main: '#55368B',
+      light: '#9986B9',
       contrastText: '#fff',
     },
     secondary: {
-      main: '#9c741e',
+      main: '#F0801E',
+      light: '#F8A629',
       contrastText: '#fff',
     },
     text: {
@@ -27,13 +29,6 @@ export const DarkTheme = createTheme({
   custom: {
     tab: {
       tab: '#333',
-    },
-    status: {
-      main: '#333',
-      agregado: '#014071',
-      frota: '#75B0DE',
-      terceiros: '#005BA3',
-      rejeitado: '#e847475e',
     },
     icon: {
       main: '#014071',
