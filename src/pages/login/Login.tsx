@@ -23,7 +23,8 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../shared/hooks/auth'
 import { useToast } from '../../shared/hooks/Toast'
 
-import logo from '../../assets/logo.png'
+import logoBlack from '../../assets/logo-black.png'
+import logoWhite from '../../assets/logo-white.png'
 import background from '../../assets/background.png'
 import { InputText } from '../../shared/components/hook-form-components/input-text'
 
@@ -140,12 +141,12 @@ export const Login: React.FC = () => {
                   flexDirection="column"
                 >
                   <img
-                    src={logo}
-                    alt="Coollbarber"
+                    src={mdDown ? logoWhite : logoBlack}
+                    alt="Stack 2U"
                     width={mdDown ? '180px' : '200px'}
                     style={{
                       alignSelf: 'center',
-                      marginTop: mdDown ? '24px' : '0px',
+                      marginTop: mdDown ? '64px' : '0px',
                       position: `${mdDown ? 'absolute' : 'relative'}`,
                       top: '0',
                     }}

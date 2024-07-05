@@ -19,7 +19,8 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { useToast } from '../../shared/hooks/Toast'
 
-import logo from '../../assets/logo.png'
+import logoBlack from '../../assets/logo-black.png'
+import logoWhite from '../../assets/logo-white.png'
 import background from '../../assets/background.png'
 
 import { InputText } from '../../shared/components/hook-form-components/input-text'
@@ -139,12 +140,12 @@ export const ForgotPassword: React.FC = () => {
                   flexDirection="column"
                 >
                   <img
-                    src={logo}
+                    src={mdDown ? logoWhite : logoBlack}
                     alt="Coollbarber"
                     width={mdDown ? '180px' : '200px'}
                     style={{
                       alignSelf: 'center',
-                      marginTop: mdDown ? '24px' : '0px',
+                      marginTop: mdDown ? '64px' : '0px',
                       position: `${mdDown ? 'absolute' : 'relative'}`,
                       top: '0',
                     }}
