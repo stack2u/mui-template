@@ -34,9 +34,9 @@ const AuthProvider: React.FC<AuthProps> = ({ children }) => {
     const payload = localStorage.getItem(environment.APP_NAME)
 
     if (payload) {
-      const { data } = JSON.parse(payload)
+      const parsedPayload = JSON.parse(payload)
 
-      const { token, user } = data
+      const { token, user } = parsedPayload
 
       return { token, user }
     }

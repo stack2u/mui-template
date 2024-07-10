@@ -28,7 +28,7 @@ export const LightTheme = createTheme({
   },
   custom: {
     tab: {
-      tab: '#333',
+      main: '#333',
     },
     icon: {
       main: '#014071',

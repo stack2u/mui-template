@@ -14,6 +14,9 @@ declare module '@mui/material/styles' {
       icon?: {
         main: string
       }
+      tab?: {
+        main: string
+      }
     }
   }
 }
@@ -33,7 +36,7 @@ declare module '@mui/material/styles' {
         main: string
       }
       tab?: {
-        tab: string
+        main: string
       }
     }
   }

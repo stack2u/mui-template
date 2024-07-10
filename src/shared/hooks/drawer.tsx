@@ -1,15 +1,21 @@
 import React, { createContext, useCallback, useContext, useState } from 'react'
 
-interface IDrawerOption {
+export type IMenuProps = {
   icon: string
   path: string
   label: string
 }
 
+interface IDrawerOption {
+  title: string
+  icon: string
+  items: IMenuProps[]
+}
+
 interface IDrawerContextData {
   isDrawerOpen: boolean
-  drawerOptions: IDrawerOption[]
   toggleDrawerOpen: () => void
+  drawerOptions: IDrawerOption[]
   setDrawerOptions: (newDrawerOptions: IDrawerOption[]) => void
 }
 
@@ -25,16 +31,16 @@ const DrawerProvider: React.FC<DrawerProps> = ({ children }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [drawerOptions, setDrawerOptions] = useState<IDrawerOption[]>([])
 
-  const toggleDrawerOpen = useCallback(() => {
-    setIsDrawerOpen((oldDrawerOpen) => !oldDrawerOpen)
-  }, [])
-
   const handleSetDrawerOption = useCallback(
     (newDrawerOption: IDrawerOption[]) => {
       setDrawerOptions(newDrawerOption)
     },
     [],
   )
+
+  const toggleDrawerOpen = useCallback(() => {
+    setIsDrawerOpen((oldDrawerOpen) => !oldDrawerOpen)
+  }, [])
 
   return (
     <DrawerContext.Provider

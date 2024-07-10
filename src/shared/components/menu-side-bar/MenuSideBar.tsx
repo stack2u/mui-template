@@ -1,146 +1,295 @@
-import React from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useCallback, useEffect, useState } from 'react'
+import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles'
+import Box from '@mui/material/Box'
+import MuiDrawer from '@mui/material/Drawer'
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import List from '@mui/material/List'
+
+import Typography from '@mui/material/Typography'
+import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import MenuIcon from '@mui/icons-material/Menu'
 
 import {
-  Avatar,
-  Divider,
-  Drawer,
-  List,
+  Icon,
+  ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  useTheme,
-  Icon,
   useMediaQuery,
-  Box,
+  Drawer as DrawerMui,
 } from '@mui/material'
-import { useMatch, useNavigate, useResolvedPath } from 'react-router-dom'
-
-import { useAuth } from '../../hooks/auth'
-import { useAppTheme } from '../../hooks/theme'
 import { useDrawer } from '../../hooks/drawer'
 
-interface IMenuSideBarProps {
+import logoBlack from '../../../assets/logo-horizontal-black.png'
+
+import { useAuth } from '../../hooks/auth'
+import { Menus } from './Menus'
+// import logoWhite from '../../../assets/logo-horizontal-white.png'
+
+const drawerWidth = 240
+
+const openedMixin = (theme: Theme): CSSObject => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+})
+
+const closedMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up('sm')]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+})
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  padding: theme.spacing(0, 1),
+  ...theme.mixins.toolbar,
+}))
+
+interface AppBarProps extends MuiAppBarProps {
+  open?: boolean
+}
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})<AppBarProps>(({ theme, open }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  background: theme.custom.tab?.main,
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    background: theme.custom.tab?.main,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}))
+
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
+  ...(open && {
+    ...openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
+  }),
+}))
+
+type IMenuSideBarProps = {
   children: React.ReactNode
-}
-
-interface IListItemProps {
-  label: string
-  icon: string
-  to: string
-  children?: React.ReactNode
-  onClick: (() => void) | undefined
-}
-
-const ListItemLink: React.FC<IListItemProps> = ({
-  to,
-  icon,
-  label,
-  onClick,
-}) => {
-  const navigate = useNavigate()
-
-  const resolvedPath = useResolvedPath(to)
-
-  const match = useMatch({
-    path: resolvedPath.pathname,
-    end: false,
-  })
-
-  const handleClick = () => {
-    navigate(to)
-    onClick?.()
-  }
-  return (
-    <ListItemButton selected={!!match} onClick={handleClick}>
-      <ListItemIcon>
-        <Icon>{icon}</Icon>
-      </ListItemIcon>
-      <ListItemText primary={label} />
-    </ListItemButton>
-  )
 }
 
 export const MenuSideBar: React.FC<IMenuSideBarProps> = ({ children }) => {
   const theme = useTheme()
-
   const smDown = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const { isDrawerOpen, toggleDrawerOpen, drawerOptions } = useDrawer()
+  const [open, setOpen] = useState(true)
 
-  const { toggleTheme } = useAppTheme()
+  const [title, setTitle] = useState('Bem Vindos')
 
   const { signOut } = useAuth()
 
+  const { drawerOptions } = useDrawer()
+
+  const handleDrawer = useCallback(() => {
+    if (!smDown) return setOpen(true)
+
+    setOpen(!open)
+  }, [smDown, open])
+
+  const handleTitle = (titlePage: string) => {
+    setTitle(titlePage)
+  }
+
+  useEffect(() => {
+    handleDrawer()
+  }, [])
+
   return (
-    <>
-      <Drawer
-        open={isDrawerOpen}
-        variant={smDown ? 'temporary' : 'permanent'}
-        onClose={toggleDrawerOpen}
-      >
-        <Box
-          width={theme.spacing(28)}
-          height="100%"
-          display="flex"
-          flexDirection="column"
-        >
-          <Box
-            width="100%"
-            height={theme.spacing(20)}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
+    <Box sx={{ display: 'flex' }}>
+      <AppBar position="fixed" open={smDown ? false : open}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawer}
+            edge="start"
+            sx={{
+              marginRight: 5,
+              ...(open && !smDown && { display: 'none' }),
+            }}
           >
-            <Avatar
-              sx={{
-                height: theme.spacing(12),
-                width: theme.spacing(12),
-              }}
-              alt="Remy Sharp"
-              src="https://avatars.githubusercontent.com/u/45999236?v=4"
-            />
-          </Box>
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            style={{ color: theme.palette.primary.contrastText }}
+          >
+            {title}
+          </Typography>
+        </Toolbar>
+      </AppBar>
 
+      {smDown ? (
+        <DrawerMui variant={'temporary'} open={open} onClose={handleDrawer}>
+          <DrawerHeader
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <img src={logoBlack} alt="Stack 2U Inovação Digital" width={140} />
+          </DrawerHeader>
           <Divider />
-
-          <Box flex={1}>
-            <List component="nav">
-              {drawerOptions.map((drawerOption) => (
-                <ListItemLink
-                  key={drawerOption.path}
-                  to={drawerOption.path}
-                  icon={drawerOption.icon}
-                  label={drawerOption.label}
-                  onClick={smDown ? toggleDrawerOpen : undefined}
-                />
-              ))}
-            </List>
+          <List
+            sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+            component="nav"
+            aria-labelledby="nested-list-subheader"
+          >
+            {drawerOptions.map((menu, index) => (
+              <Menus
+                key={index}
+                title={menu.title}
+                icon={menu.icon}
+                items={menu.items}
+                handleTitle={handleTitle}
+                handleDrawer={handleDrawer}
+              />
+            ))}
+          </List>
+          <Divider />
+          <Box
+            flex={1}
+            display="flex"
+            flexDirection="column"
+            justifyContent="space-between"
+          >
+            <Box></Box>
+            <Box>
+              <ListItem disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
+                  onClick={signOut}
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon>logout</Icon>
+                  </ListItemIcon>
+                  <ListItemText primary="Sair" sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            </Box>
           </Box>
-          <Box>
-            <List component="nav">
-              <ListItemButton onClick={toggleTheme}>
-                <ListItemIcon>
-                  <Icon>
-                    {theme.palette.mode === 'dark' ? 'dark_mode' : 'light_mode'}
-                  </Icon>
-                </ListItemIcon>
-                <ListItemText primary="Mudar tema" />
-              </ListItemButton>
+        </DrawerMui>
+      ) : (
+        <Drawer variant="permanent" open={open} onClose={handleDrawer}>
+          <DrawerHeader
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <img src={logoBlack} alt="Stack 2U Inovação Digital" width={140} />
+          </DrawerHeader>
+          <Divider />
+          <List
+            sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+            component="nav"
+            aria-labelledby="nested-list-subheader"
+          >
+            {drawerOptions.map((menu, index) => (
+              <Menus
+                key={index}
+                title={menu.title}
+                icon={menu.icon}
+                items={menu.items}
+                handleTitle={handleTitle}
+                handleDrawer={handleDrawer}
+              />
+            ))}
+          </List>
 
-              <ListItemButton onClick={signOut}>
-                <ListItemIcon>
-                  <Icon>logout</Icon>
-                </ListItemIcon>
-                <ListItemText primary="Sair" />
-              </ListItemButton>
-            </List>
+          <Box
+            flex={1}
+            display="flex"
+            flexDirection="column"
+            justifyContent="space-between"
+          >
+            <Box></Box>
+            <Box>
+              <ListItem disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
+                  onClick={signOut}
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon>logout</Icon>
+                  </ListItemIcon>
+                  <ListItemText primary="Sair" sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+            </Box>
           </Box>
-        </Box>
-      </Drawer>
+        </Drawer>
+      )}
 
-      <Box height="100vh" marginLeft={smDown ? 0 : theme.spacing(28)}>
+      <Box
+        height="100vh"
+        flex={1}
+        marginLeft={smDown ? 0 : theme.spacing(2)}
+        marginRight={smDown ? 0 : theme.spacing(2)}
+      >
         {children}
       </Box>
-    </>
+    </Box>
   )
 }
