@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useState } from 'react'
 import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles'
@@ -22,12 +23,13 @@ import {
   Drawer as DrawerMui,
 } from '@mui/material'
 import { useDrawer } from '../../hooks/drawer'
+import { useLocation } from 'react-router-dom'
 
 import logoBlack from '../../../assets/logo-horizontal-black.png'
 
 import { useAuth } from '../../hooks/auth'
 import { Menus } from './Menus'
-// import logoWhite from '../../../assets/logo-horizontal-white.png'
+import { menu } from '../../utils/menu'
 
 const drawerWidth = 240
 
@@ -108,10 +110,20 @@ type IMenuSideBarProps = {
 export const MenuSideBar: React.FC<IMenuSideBarProps> = ({ children }) => {
   const theme = useTheme()
   const smDown = useMediaQuery(theme.breakpoints.down('sm'))
+  const { pathname } = useLocation()
 
   const [open, setOpen] = useState(true)
 
-  const [title, setTitle] = useState('Bem Vindos')
+  const [title, setTitle] = useState(() => {
+    let titleName: any
+    menu.forEach((item) =>
+      item.items.map((it) => {
+        if (it.path === pathname) titleName = it
+      }),
+    )
+
+    return titleName?.label || 'Bem Vindo'
+  })
 
   const { signOut } = useAuth()
 
